@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Department of Geography Library Management System</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f2f6fa;
+    margin:0;
+}
+
+header{
+    background:#0b4f8a;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+.container{
+    width:90%;
+    margin:20px auto;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px #ccc;
+    margin-bottom:20px;
+}
+
+input,select,button{
+    padding:10px;
+    margin:5px;
+    width:95%;
+}
+
+button{
+    background:#0b4f8a;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#06345c;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+}
+
+th{
+    background:#0b4f8a;
+    color:white;
+}
+
+.hidden{
+    display:none;
+}
+
+.category{
+    background:#e8f1ff;
+    padding:10px;
+    margin:5px;
+    display:inline-block;
+    border-radius:5px;
+}
+
+footer{
+    text-align:center;
+    padding:20px;
+    background:#0b4f8a;
+    color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<header>
+
+<h1>Department of Geography Library</h1>
+<h3>Library Management System</h3>
+
+</header>
+
+
+<div class="container">
+
+
+<!-- LOGIN -->
+
+<div id="login" class="card">
+
+<h2>Login</h2>
+
+<input id="username" placeholder="Username">
+
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+<p id="message"></p>
+
+</div>
+
+
+
+<!-- ADMIN -->
+
+<div id="admin" class="hidden">
+
+
+<div class="card">
+
+<h2>Admin Dashboard</h2>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+
+
+<div class="card">
+
+<h3>Add Book</h3>
+
+
+<input id="title" placeholder="Book Title">
+
+<input id="author" placeholder="Author">
+
+<input id="isbn" placeholder="ISBN">
+
+<select id="category">
+
+<option>Human Geography</option>
+<option>Physical Geography</option>
+<option>GIS and RS</option>
+<option>Others</option>
+<option>English Club</option>
+<option>ERF Books</option>
+
+</select>
+
+
+<input id="copies" placeholder="Number of Copies">
+
+<button onclick="addBook()">Add Book</button>
+
+
+</div>
+
+
+
+<div class="card">
+
+<h3>Search Books</h3>
+
+<input id="search" placeholder="Search..." onkeyup="displayBooks()">
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Title</th>
+<th>Author</th>
+<th>ISBN</th>
+<th>Category</th>
+<th>Action</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="adminBooks"></tbody>
+
+
+</table>
+
+
+<button onclick="exportCSV()">Export CSV</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- USER -->
+
+<div id="user" class="hidden">
+
+
+<div class="card">
+
+<h2>User Dashboard</h2>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>Available Books</h3>
+
+
+<input id="userSearch" placeholder="Search Book" onkeyup="displayUserBooks()">
+
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>Title</th>
+<th>Author</th>
+<th>ISBN</th>
+<th>Category</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="userBooks"></tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+
+<footer>
+
+Department of Geography Library Management System
+<br>
+Created by Naveen Dissanayake
+
+</footer>
+
+
+
+
+<script>
+
+
+let books=[
+
+{
+title:"Introduction to Geography",
+author:"A. Smith",
+isbn:"1001",
+category:"Human Geography",
+copies:5
+},
+
+{
+title:"Remote Sensing Basics",
+author:"J. Silva",
+isbn:"1002",
+category:"GIS and RS",
+copies:3
+}
+
+];
+
+
+
+// LOGIN
+
+function login(){
+
+
+let u=document.getElementById("username").value;
+
+let p=document.getElementById("password").value;
+
+
+
+if(u==="Adm_123" && p==="Geo_123"){
+
+document.getElementById("login").style.display="none";
+
+document.getElementById("admin").classList.remove("hidden");
+
+displayBooks();
+
+}
+
+
+
+else if(u==="User_123" && p==="User_geo"){
+
+
+document.getElementById("login").style.display="none";
+
+document.getElementById("user").classList.remove("hidden");
+
+displayUserBooks();
+
+
+}
+
+
+else{
+
+document.getElementById("message").innerHTML="Invalid Login";
+
+}
+
+
+
+}
+
+
+
+// ADD BOOK
+
+function addBook(){
+
+
+let book={
+
+title:title.value,
+author:author.value,
+isbn:isbn.value,
+category:category.value,
+copies:copies.value
+
+};
+
+
+books.push(book);
+
+
+alert("Book Added");
+
+displayBooks();
+
+
+}
+
+
+
+// DISPLAY ADMIN BOOKS
+
+function displayBooks(){
+
+
+let table="";
+
+
+let search=document.getElementById("search")?.value.toLowerCase() || "";
+
+
+books.filter(b=>
+
+b.title.toLowerCase().includes(search)
+
+).forEach((b,i)=>{
+
+
+table+=`
+
+<tr>
+
+<td>${b.title}</td>
+
+<td>${b.author}</td>
+
+<td>${b.isbn}</td>
+
+<td>${b.category}</td>
+
+<td>
+
+<button onclick="deleteBook(${i})">
+Delete
+</button>
+
+</td>
+
+
+</tr>
+
+`;
+
+
+});
+
+
+document.getElementById("adminBooks").innerHTML=table;
+
+
+}
+
+
+
+
+function deleteBook(i){
+
+books.splice(i,1);
+
+displayBooks();
+
+}
+
+
+
+
+// USER DISPLAY
+
+
+function displayUserBooks(){
+
+
+let table="";
+
+
+let search=document.getElementById("userSearch")?.value.toLowerCase() || "";
+
+
+
+books.filter(b=>
+
+b.title.toLowerCase().includes(search)
+
+).forEach(b=>{
+
+
+// hide ERF books
+
+if(b.category!="ERF Books"){
+
+
+table+=`
+
+<tr>
+
+<td>${b.title}</td>
+
+<td>${b.author}</td>
+
+<td>${b.isbn}</td>
+
+<td>${b.category}</td>
+
+</tr>
+
+
+`;
+
+}
+
+
+});
+
+
+document.getElementById("userBooks").innerHTML=table;
+
+
+}
+
+
+
+
+// CSV EXPORT
+
+
+function exportCSV(){
+
+
+let csv="Title,Author,ISBN,Category,Copies\n";
+
+
+books.forEach(b=>{
+
+
+csv+=`${b.title},${b.author},${b.isbn},${b.category},${b.copies}\n`;
+
+
+});
+
+
+let blob=new Blob([csv],{type:"text/csv"});
+
+
+let link=document.createElement("a");
+
+link.href=URL.createObjectURL(blob);
+
+link.download="Geography_Library_Books.csv";
+
+link.click();
+
+
+}
+
+
+
+
+
+function logout(){
+
+location.reload();
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>
